@@ -1,0 +1,59 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+struct P{double a,b;P(double a=0,double b=0):a(a),b(b){}};
+double dist(const P& u,const P& v){return sqrt(pow(u.a-v.a,2)+pow(u.b-v.b,2));}
+double route(const vector<int>& w,const vector<P>& p){
+    int m=w.size()-1;double s=0;
+    for(int i=0;i<m;i++)s+=dist(p[w[i]],p[w[i+1]]);
+    return s+dist(p[w.back()],p[w.front()]);
+}
+void opt3(vector<int>& w,const vector<P>& p,int n){
+    bool f=true;int i,j,k;double L,N;
+    while(f){
+        L=route(w,p);f=false;
+        for(i=1;i<n-2;i++){
+            for(j=i+1;j<n-1;j++){
+                for(k=j+1;k<n;k++){
+                    reverse(w.begin()+i,w.begin()+j+1);
+                    reverse(w.begin()+j+1,w.begin()+k+1);
+                    N=route(w,p);
+                    if(N<L){L=N;f=true;}
+                    else{reverse(w.begin()+i,w.begin()+j+1);reverse(w.begin()+j+1,w.begin()+k+1);}
+                }
+            }
+        }
+    }
+}
+void opt2(vector<int>& w,const vector<P>& p,int n){
+    bool f=true;int i,j,i1,j1;double L,N;
+    while(f){
+        L=route(w,p);f=false;
+        for(i=1;i<n-2;i++){
+            for(j=i+1;j<n-1;j++){
+                i1=i;j1=j;
+                while(i1<j1)swap(w[i1++],w[j1--]);
+                N=route(w,p);
+                if(N<L){L=N;f=true;}
+                else{i1=i;j1=j;while(i1<j1)swap(w[i1++],w[j1--]);}
+            }
+        }
+    }
+}
+int main(){
+    int n;cin>>n;
+    vector<P> p(n);
+    for(int i=0;i<n;i++)cin>>p[i].a>>p[i].b;
+    vector<int> w(n+1);
+    for(int i=0;i<n;i++)w[i]=i;
+    w[n]=0;
+    opt2(w,p,n+1);
+    opt3(w,p,n+1);
+    double ans=route(w,p);
+    cout<<ans<<" 1"<<endl;
+    for(int i=0;i<n+1;i++)cout<<w[i]<<" ";
+    cout<<endl;
+    return 0;
+}
